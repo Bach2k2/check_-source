@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include<fstream>
+#include <iomanip>
 using namespace std;
 Customer::Customer(string cusId, string customerName, string address, string phoneNum) :
 	cusId(cusId), cusName(customerName), address(address), phoneNum(phoneNum)
@@ -43,10 +44,11 @@ void Customer::setCusData()
 {
 	bool check = true;
 	string cusName;
+	cin.ignore();
 	do
 	{
+		
 		cout << "Nhap ten khach hang";
-		cin.ignore(32767, '\n');
 		getline(cin, cusName);
 		if (cusName == "\n" || cusName == "")
 		{
@@ -74,16 +76,19 @@ void Customer::setCusData()
 	do
 	{
 		cout << "Nhap so dien thoai: ";
-		cin.ignore(32767, '\n');
 		getline(cin, phoneNumber);
-		if (phoneNumber == "") { check = false; }
+		if (phoneNumber == ""||(phoneNumber.length()!=10&&phoneNumber.length()!=11)) {
+			cout << "So dien thoai qua ngan hoac qua dai" << endl;
+			check = false; }
 		else
 		{
 			check = true;
 		}
 		for (int i = 0; i < phoneNumber.length(); i++)
 		{
-			if (!isdigit(phoneNumber[i])) { check = false; break; }
+			if (!isdigit(phoneNumber[i])) { 
+				cout << "Nhap lai!" << endl;
+				check = false; break; }
 			else { check = true; }
 		}
 	} while (!check);
@@ -91,15 +96,15 @@ void Customer::setCusData()
 }
 ostream& operator<<(ostream& o, const Customer& cus)
 {
-		o<< cus.cusId <<" "
-		 << cus.cusName << " "
-		 << cus.address  << " "
-		 << cus.phoneNum << endl;
+	o <<"| \t  " << cus.cusId<<"\t\t";
+	o << setw(30) <<cus.cusName<<"\t\t";
+	o << setw(50) << cus.address<<"\t";
+	o << setw(20)<< cus.phoneNum<<"\t|" << endl;
 	return o;
 }
 void Customer::fromString(string str)
 {
-	string arr[20];
+	string arr[10];
 	int count = 0;
 	string word;
 	for (int i = 0; i <= str.length(); i++)
@@ -115,15 +120,14 @@ void Customer::fromString(string str)
 			word += str[i];
 		}
 	}
-	int length = count;
 	this->cusId = arr[0];
 	this->cusName = arr[1];
-	this->phoneNum = arr[length - 1];
-	cout << count;
-	for (int i = 2; i < length - 1; i++)
+	for (int i = 2; i < count - 1; i++)
 	{
 		this->address += arr[i] + ',';
 	}
+	this->phoneNum = arr[count-1];
+	this->address = this->address.substr(0, address.length() - 1);
 }
 string Customer::getLastName()
 {

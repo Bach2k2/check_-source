@@ -4,18 +4,25 @@ using namespace std;
 #include "UnitPrice.h"
 UnitPrice::UnitPrice(int unit)
 {
+	this->rank = new double[6];
+	this->unitRank = new int[6];
+	this->priceRank = new double[6];
 	for (int i = 0; i < 6; i++)
 	{
-		this->unitRank[i] = 0;
-		this->priceRank[i] = 0;
-		this->rank[i] = 0;
+		rank[i] = 0;
+		unitRank[i] = 0;
+		priceRank[i] = 0;
 	}
-	this->unitMeter = unit;
+	this->unitMeter = 0;
 	this->total = 0;
 	this->peak = 1;
 }
+
 UnitPrice::~UnitPrice()
 {
+	delete rank;
+	delete unitRank;
+	delete priceRank;
 }
 int UnitPrice::getUnit()
 {
@@ -24,6 +31,32 @@ int UnitPrice::getUnit()
 void UnitPrice::setUnit(int unit)
 {
 	this->unitMeter = unit;
+}
+void UnitPrice::typeRank()
+{
+	for (int i = 0; i < 6; i++)
+	{
+		cout << " Nhap gia tien tai cac muc " << i + 1 << " : ";
+		cin >> rank[i];
+		cout << "\n";
+	}
+	cout << " THONG BAO : Don gia da duoc cap nhat: " << endl;
+	for (int i = 0; i < 6; i++)
+	{
+		cout << " Muc " << i + 1 << ": ";
+		cout<< rank[i];
+		cout << "\n";
+	}
+}
+void UnitPrice::showRank()
+{
+	cout << "\n\t\t Don gia theo tung muc: " << endl;
+	for (int i = 0; i < 6; i++)
+	{
+		cout << " Muc " << i + 1 << ": ";
+		cout << rank[i];
+		cout << "\n";
+	}
 }
 double UnitPrice::getPrice()
 {
@@ -96,23 +129,23 @@ void UnitPrice::calcPrice()
 }
 void UnitPrice::showUnitPrice()
 {
-	cout << "\n* Muc\t\t So chi dien tai moi muc \t\t Gia tien tai moi muc \t\t";
+	cout << "\n*\t Muc\t\t So chi dien tai moi muc \t\t Gia tien tai moi muc \t\t";
 	for (int i = 0; i < peak; i++)
 	{
 		cout << "\n*\t" << setw(5) << i + 1 << setw(20) << unitRank[i] << setw(25) << priceRank[i];
 	}
 	cout << "\n*\t Muc cao nhat: " << this->peak;
-	cout << "\n*\t Tong tien:" <<setw(37)<< total << endl;
+	cout << "\n*\t Tong tien:" <<setw(35)<< total << endl;
 }
 void UnitPrice::readData(string path)
 {
 	ifstream file(path, ios::in);
 	if (file.is_open())
 	{
-		cout << " Da doc file " << path <<endl;
 		for (int i = 0; i < 6; i++) {
 			file >> rank[i];
 		}
+		cout << "THONG BAO: Da them thong tin don gia: " << path << endl;
 	}
 }
 double UnitPrice::getTotalPrice()

@@ -1,18 +1,23 @@
 #include<iostream>
+#include <Windows.h>
 #include "MeterService.h"
 #include "CustomerService.h"
 #include "BillService.h"
 using namespace std;
 BillService billManager;
-MeterService meterManager;
-CustomerService cusManager;
+MeterService meterManager(billManager.meterList);
+CustomerService cusManager(billManager.cusList);
 UnitPrice unitPrice;
 void displayBillMenu();
 void displayCustomerMenu();
 void displayMainMenu();
+void displayUnitPriceMenu();
+void displaySearchBill();
 
 int main()
 {
+	
+	displayMainMenu();
 	int bChoice;
 	cout << " Ban co muon lay du lieu cu da quan ly khong? " << endl;
 	cout << "Nhan 1 de co - Nhan 0 de huy" << endl;
@@ -21,32 +26,37 @@ int main()
 	{
 	case 1:
 	{
-		//cout << "Nhap duong dan file bill  -- Nhap meter.txt" << endl;
-		string uPath;
-		uPath = "UnitPrice.txt";
-		unitPrice.readData(uPath);
-		string mPath;
-		mPath = "meter.txt";
-		meterManager.readFile(mPath);
+		string oMPath;
+		cout << "Duong dan luu cac thong tin cong to: " << endl;
+		cin >> oMPath;
+		meterManager.writeFile(oMPath);
 		system("pause");
-		string path2;
-		path2 = "custome.txt";
-		cusManager.readDataInFile(path2);
+		cout << "Duong dan luu thong tin khach hang: " << endl;
+		string oKhPath;
+		cin >> oKhPath;
+		cusManager.writeDataInFile(oKhPath);
 		system("pause");
-		string path3 = "CongTo_KhachHang.txt";
-		billManager.readTwoId(path3);
-		// Tinh san gia tien moi hoa don: 
+		string oBillPath;
+		cout << "Nhap duong dan luu tat ca hoa don: " << endl;
+		cin >> oBillPath;
+		billManager.writeIntoFile(oBillPath);
 		system("pause");
+		break;
+	}
+	case 0:
+	{
+		cout << " Da huy luu du lieu " << endl;
 		break;
 	}
 	default:
-		cout << " Da huy" << endl;
+		cout << "Lua chon khong chinh xac " << endl;
 		break;
-	}
-	displayMainMenu();
+	}	
 }
 void displayBillMenu()
 {
+	billManager.meterList = meterManager;
+	billManager.cusList = cusManager;
 	int choice;
 	do
 	{
@@ -57,9 +67,9 @@ void displayBillMenu()
 		cout << "\n\t\t\t|2. Cap nhat thong tin mot hoa don\t\t\t\t|";
 		cout << "\n\t\t\t|3. Xuat ra mot hoa don   \t\t\t\t\t|";
 		cout << "\n\t\t\t|4. Xoa di mot hoa don\t\t\t\t\t\t|";
-		cout << "\n\t\t\t|5. Hien thi het tat ca hoa don trong 1 thang  \t\t\t|";
-		cout << "\n\t\t\t|6. Luu vao file tat ca hoa don\t\t\t\t\t|";
-		cout << "\n\t\t\t|7. Quan ly hoa don theo tung khu vuc \t\t\t\t|";
+		cout << "\n\t\t\t|5. Xuat tat ca hoa don  \t\t\t\t\t|";
+		cout << "\n\t\t\t|6. Quan ly hoa don theo tung khu vuc \t\t\t\t|";
+		cout << "\n\t\t\t|7. In danh sach tien dien cua moi khach\t\t\t|";
 		cout << "\n\t\t\t|0. Tro ve menu chinh  \t\t\t\t\t\t|";
 		cout << "\n\t\t\t|---------------------------------------------------------------|";
 		cout << "\n\n\t\t\tNhap lua chon: ";
@@ -70,6 +80,9 @@ void displayBillMenu()
 		{
 			system("cls");
 			cout << "\nCHUC NANG: THEM MOI TAT CA HOA DON CHO THANG TIEP THEO. " << endl;
+			billManager.createBill(meterManager, cusManager, unitPrice);
+			billManager.display();
+			system("pause");
 			cout << "nhap file thang tiep theo can them" << endl;
 			string monthPath;
 			cin >> monthPath;
@@ -89,9 +102,7 @@ void displayBillMenu()
 		case 3:
 		{
 			system("cls");
-			cout << "\nCHUC NANG: TIM KIEM THONG TIN MOT HOA DON. " << endl;
-			billManager.search();
-			system("pause");
+			displaySearchBill();
 			break;
 		}
 		case 4:
@@ -105,44 +116,81 @@ void displayBillMenu()
 		case 5:
 		{
 			system("cls");
-			cout << "\nCHUC NANG: IN TAT CA HOA DON SAU KHI TINH TIEN";
+			cout << "\nCHUC NANG: XUAT TAT CA HOA DON ";
 			billManager.setAllUP(unitPrice);
 			billManager.display();
 			system("pause");
+			cout << "Nhan phim 1 de tiep tuc xuat ra file, nhan phim 0 de thoat " << endl;
+			int osChoice;
+			do
+			{
+				cout << "Nhap lua chon: " << endl;
+				cin >> osChoice;
+				if (osChoice == 1)
+				{
+					string oBillPath;
+					cin.ignore(100, '\n');
+					cout << " Nhap ten file: " << endl;
+					getline(cin, oBillPath);
+					billManager.writeIntoFile(oBillPath);
+					system("pause");
+				}
+				else if (osChoice == 0) {
+					cout << " Xac nhan thoat ve menu " << endl;
+					system("pause");
+				}
+				else
+				{
+					cout << " Lua chon khong dung! ";
+					system("pause");
+				}
+			} while (osChoice != 0);
 			break;
 		}
 		case 6:
 		{
-			cout << "\n CHUC NANG: IN VAO FILE"<<endl;
-			string savePath;
-			cout << "Nhap duong dan: ";
-			cin >> savePath;
-			billManager.writeIntoFile(savePath);
-			break;
-		}
-		case 7:
-		{
 			cout << "\n CHUC NANG: IN TAT CA HOA DON THEO KHU VUC" << endl;
-			cin.ignore(100,'\n');
+			cin.ignore(100, '\n');
 			cout << "Nhap khu vuc muon tim kiem:  " << endl;
 			string area;
 			getline(cin, area);
 			billManager.displayWithArea(area);
+			cout << "Nhan phim 1 de tiep tuc xuat ra file, nhan phim 0 de thoat " << endl;
+			int osChoice;
+			do
+			{
+				cout << "Nhap lua chon: " << endl;
+				cin >> osChoice;
+				if (osChoice == 1)
+				{
+					string oBillPath;
+					cin.ignore(100, '\n');
+					cout << " Nhap ten file: " << endl;
+					getline(cin, oBillPath);
+					billManager.exByArea(oBillPath, area);
+					system("pause");
+				}
+				else if (osChoice == 0) {
+					cout << " Xac nhan thoat ve menu " << endl;
+					system("pause");
+				}
+				else
+				{
+					cout << " Lua chon khong dung! ";
+					system("pause");
+				}
+			} while (osChoice != 0);
 			system("pause");
 			break;
 		}
-		case 8:
-		{
-			cout << "CHUC NANG: TINH TIEN HOA DON THEO KHACH HANG" << endl;
-
-			break;
-		}
 		case 0:
-			cout << "\n\t\t\t------------------------Tam biet----------------------------------" << endl;
+			cout << "\n\t\t\t------------------------TRO LAI MENU CHINH----------------------------------" << endl;
+			system("pause");
 			break;
 		default:
 			cout << "Lua chon khong hop le" << endl;
 			cout << "Moi nhap lai lua chon: " << endl;
+			system("pause");
 			break;
 		}
 	} while (choice != 0);
@@ -156,11 +204,11 @@ void displayMeterMenu()
 		cout << "\n\n";
 		cout << "\n\t\t\t|-----------------------QUAN LY CONG TO DIEN--------------------|";
 		cout << "\n\t\t\t|1. Them moi mot cong to  \t\t\t\t\t|";
-		cout << "\n\t\t\t|2. Cap nhat thong tin mot cong to\t\t\t\t|";
-		cout << "\n\t\t\t|3. Tim kiem mot cong to\t\t\t\t\t|";
-		cout << "\n\t\t\t|4. Xoa mot cong to\t\t\t\t\t\t|";
-		cout << "\n\t\t\t|5. Hien thi het tat ca cong to dang quan ly\t\t\t|";
-		cout << "\n\t\t\t|6. In vao file tat ca cong to da cap nhat\t\t\t|";
+		cout << "\n\t\t\t|2. Them cong to tu file  \t\t\t\t\t|";
+		cout << "\n\t\t\t|3. Cap nhat thong tin mot cong to\t\t\t\t|";
+		cout << "\n\t\t\t|4. Tim kiem mot cong to\t\t\t\t\t|";
+		cout << "\n\t\t\t|5. Xoa mot cong to\t\t\t\t\t\t|";
+		cout << "\n\t\t\t|6. Hien thi danh sach cong to dang quan ly\t\t\t|";
 		cout << "\n\t\t\t|0. Tro ve menu chinh\t\t\t\t\t\t|";
 		cout << "\n\t\t\t|---------------------------------------------------------------|";
 		cout << "\n\n\t\t\tNhap lua chon: ";
@@ -178,12 +226,22 @@ void displayMeterMenu()
 		case 2:
 		{
 			system("cls");
+			cout << "\nCHUC NANG: THEM CONG TO TU FILE " << endl;
+			string iMPath;
+			cin >> iMPath;
+			meterManager.readFile(iMPath);
+			system("pause");
+			break;
+		}
+		case 3:
+		{
+			system("cls");
 			cout << "\nCHUC NANG: CAP NHAT THONG TIN MOT CONG TO" << endl;
 			meterManager.update();
 			system("pause");
 			break;
 		}
-		case 3:
+		case 4:
 		{
 			system("cls");
 			cout << "\nCHUC NANG: TIM KIEM THONG TIN MOT CONG TO" << endl;
@@ -192,7 +250,7 @@ void displayMeterMenu()
 			system("pause");
 			break;
 		}
-		case 4:
+		case 5:
 		{
 			system("cls");
 			cout << "\nCHUC NANG: XOA MOT CONG TO";
@@ -200,21 +258,10 @@ void displayMeterMenu()
 			system("pause");
 			break;
 		}
-		case 5:
-		{
-			system("cls");
-			meterManager.display();
-			system("pause");
-			break;
-		}
 		case 6:
 		{
 			system("cls");
-			cout << "\nCHUC NANG: IN VAO FILE TAT CA CONG TO DA NHAP" << endl;
-			string mPath;
-			cout << "nhap duong dan can luu" << endl;
-			cin >> mPath;
-			meterManager.writeFile(mPath);
+			meterManager.display();
 			system("pause");
 			break;
 		}
@@ -235,13 +282,13 @@ void displayCustomerMenu()
 	{
 		system("cls");
 		cout << "\n\n";
-		cout << "\n\t\t\t|----------------------Quan ly Khach Hang-----------------------|";
+		cout << "\n\t\t\t|----------------------QUAN LY KHACH HANG-----------------------|";
 		cout << "\n\t\t\t|1. Them moi khach hang \t\t\t\t\t|";
-		cout << "\n\t\t\t|2. Cap nhat thong tin khach hang\t\t\t\t|";
-		cout << "\n\t\t\t|3. Tim kiem mot khach hang\t\t\t\t\t|";
-		cout << "\n\t\t\t|4. Xoa di mot khach hang\t\t\t\t\t|";
-		cout << "\n\t\t\t|5. In danh sach cua tat ca khach hang\t\t\t\t|";
-		cout << "\n\t\t\t|6. Dua du lieu vao file\t\t\t\t\t|";
+		cout << "\n\t\t\t|2. Them khach hang tu file\t\t\t\t\t|";
+		cout << "\n\t\t\t|3. Cap nhat thong tin khach hang\t\t\t\t|";
+		cout << "\n\t\t\t|4. Tim kiem mot khach hang\t\t\t\t\t|";
+		cout << "\n\t\t\t|5. Xoa di mot khach hang\t\t\t\t\t|";
+		cout << "\n\t\t\t|6. In danh sach cua tat ca khach hang\t\t\t\t|";
 		cout << "\n\t\t\t|7. Sap xep tat ca khach hang theo ten\t\t\t\t|";
 		cout << "\n\t\t\t|0. Tro ve menu chinh   \t\t\t\t\t|";
 		cout << "\n\t\t\t|---------------------------------------------------------------|";
@@ -260,20 +307,31 @@ void displayCustomerMenu()
 		case 2:
 		{
 			system("cls");
-			cout << "\nCHUC NANG: THAY DOI THONG TIN CUA KHACH HANG " << endl;
-			//	cout << "\nNhap so cong to cua khach hang:";
-			cusManager.update();
+			cout << "\nCHUC NANG: THEM KHACH HANG TU FILE " << endl;
+			Sleep(100);
+			cout << "\n Nhap duong dan cua file khach hang: ";
+			string path2;
+			cin >> path2;
+			cusManager.readDataInFile(path2);
 			system("pause");
 			break;
 		}
 		case 3:
 		{
 			system("cls");
+			cout << "\nCHUC NANG: THAY DOI THONG TIN CUA KHACH HANG " << endl;
+			cusManager.update();
+			system("pause");
+			break;
+		}
+		case 4:
+		{
+			system("cls");
 			cout << "\nCHUC NANG: TIM KIEM KHACH HANG " << endl;
-			cout << " Chon loai tim kiem :" << endl;
-			cout << "1. Theo ma khach hang." << endl;
-			cout << "2.Theo ten" << endl;
-			cout << "Lua chon:  ";
+			cout << "|\t Chon loai tim kiem :" << endl;
+			cout << "|\t1. Theo ma khach hang." << endl;
+			cout << "|\t2.Theo ten" << endl;
+			cout << "|\tLua chon:  ";
 			int s_choice;
 			cin >> s_choice;
 			if (s_choice == 1)
@@ -288,7 +346,7 @@ void displayCustomerMenu()
 			system("pause");
 			break;
 		}
-		case 4:
+		case 5:
 		{
 			system("cls");
 			cout << "\nCHUC NANG: XOA KHACH HANG" << endl;
@@ -296,21 +354,11 @@ void displayCustomerMenu()
 			system("pause");
 			break;
 		}
-		case 5:
+		case 6:
 		{
 			cout << "\nCHUC NANG: IN DANH SACH KHACH HANG: " << endl;
 			system("cls");
 			cusManager.display();
-			system("pause");
-			break;
-		}
-		case 6:
-		{
-			cout << "\nCHUC NANG: IN VAO FILE" << endl;
-			cout << "Nhap ten file" << endl;
-			string KhPath;
-			cin >> KhPath;
-			cusManager.writeDataInFile(KhPath);
 			system("pause");
 			break;
 		}
@@ -321,6 +369,9 @@ void displayCustomerMenu()
 			break;
 		}
 		case 0:
+		{
+
+		}
 			cout << "\n\t\t\t---------TRO VE MENU CHINH----------" << endl;
 			system("pause");
 			break;
@@ -341,6 +392,7 @@ void displayMainMenu()
 		cout << "\n\t\t\t|1. Quan ly cong to dien \t\t\t|";
 		cout << "\n\t\t\t|2. Quan ly khach hang\t\t\t\t|";
 		cout << "\n\t\t\t|3. Quan ly hoa don \t\t\t\t|";
+		cout << "\n\t\t\t|4. Quan ly don gia \t\t\t\t|";
 		cout << "\n\t\t\t|0. Thoat\t\t\t\t\t|";
 		cout << "\n\t\t\t|-----------------------------------------------|";
 		cout << "\n\n\t\t\tNhap lua chon: ";
@@ -362,9 +414,14 @@ void displayMainMenu()
 			displayBillMenu();
 			break;
 		}
+		case 4:
+		{
+			displayUnitPriceMenu();
+			break;
+		}
 		case 0:
 		{
-			cout << "Tam biet" << endl;
+			cout << "--------------\t\tTam biet\t\t----------------" << endl;
 			break;
 		}
 		default:
@@ -373,5 +430,95 @@ void displayMainMenu()
 		}
 		}
 	} while (choice != 0);
+}
+void displayUnitPriceMenu()
+{
+	int choice;
+	do
+	{
+		system("cls");
+		cout << "\n\n";
+		cout << "\n\t\t\t|-------------------QUAN LY DON GIA------------------|";
+		cout << "\n\t\t\t|1. Nhap don gia tu file\t\t\t|";
+		cout << "\n\t\t\t|2. Nhap don gia tu ban phim\t\t\t|";
+		cout << "\n\t\t\t|3. In ra man hinh don gia hien tai\t|";
+		cout << "\n\t\t\t|0. Thoat\t\t\t\t|";
+		cout << "\n\t\t\t|----------------------------------------------------|";
+		cout << "\n\n\t\t\tNhap lua chon: "<<endl;
+		cin >> choice;
+		switch (choice)
+		{
+		case 1:
+		{
+			system("cls");
+			cout << "CHUC NANG: NHAP DON GIA TU FILE" << endl;
+			Sleep(100);
+			cout << "Nhap duong dan cua file don gia: " << endl;
+			string uPath;
+			cin >> uPath;
+			unitPrice.readData(uPath);
+			system("pause");
+			break;
+		}
+		case 2:
+		{
+			system("cls");
+			cout << "CHUC NANG: NHAP DON GIA TU BAN PHIM " << endl;
+			unitPrice.typeRank();
+			system("pause"); 
+			break;
+		}
+		case 3:
+		{
+			system("cls");
+			cout << "CHUC NANG: NHAP DON GIA TU BAN PHIM " << endl;
+			unitPrice.showRank();
+			system("pause");
+			break;
+		}
+		default:
+		{
+			cout << "Lua chon nhap khong dung - Moi nhap lai " << endl;
+		}
+		}
+	} while (choice != 0);
+}
+void displaySearchBill()
+{
+	cout << "\nCHUC NANG: TIM KIEM THONG TIN MOT HOA DON. " << endl;
+	cout << "| Co 3 loai tim kiem: " << endl;
+	cout << " 1. Tim kiem theo ma hoa don" << endl;
+	cout << " 2. Tim kiem theo so cong to" << endl;
+	cout << " 3. Tim kiem theo ma khach hang" << endl;
+	cout << " Lua chon: ";
+	int choice1;
+	cin >> choice1;
+	if (choice1 == 1)
+	{
+
+		billManager.search();
+		system("pause");
+	}
+	else if (choice1 == 2)
+	{
+		int meterNum;
+		cout << "\n Nhap so cong to cua hoa don: " << endl;
+		cin >> meterNum;
+		billManager.searchByMeter(meterNum);
+		system("pause");
+	}
+	else if (choice1 == 3)
+	{
+		string cusId;
+		cout << "\n Nhap ma khach hang cua hoa don: " << endl;
+		cin >> cusId;
+		billManager.searchByCustomer(cusId);
+		system("pause");
+	}
+	else
+	{
+		cout << "\nLua chon khong dung" << endl;
+
+	}
 }
 

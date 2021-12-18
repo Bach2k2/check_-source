@@ -8,8 +8,6 @@ MeterService::MeterService()
 {
 	this->mHead = NULL;
 	this->mTail = NULL;
-	this->monthManage = 0;
-	this->yearManage = 0;
 }
 MeterService::MeterService(const MeterService & meterList) {
 	this->mHead = meterList.mHead;
@@ -39,17 +37,18 @@ void MeterService::add()
 			check = true;	
 		}
 	} while (!check);
-	ElecMeter* meter = new ElecMeter();
-	meter->setMeterNumber(n_meterNum);
+	ElecMeter* myMeter = new ElecMeter();
+	myMeter->setMeterNumber(n_meterNum);
+	myMeter->typeAllData();
 	if (mHead == NULL)
 	{
-		mHead = meter;
+		mHead = myMeter;
 		mTail = mHead;
 	}
 	else
 	{
-		mTail->next = meter;
-		mTail = meter;
+		mTail->next = myMeter;
+		mTail = myMeter;
 	}
 	cout << "Da Them";
 	mAmount++;
@@ -80,6 +79,7 @@ void MeterService::readFile(string path)
 			temp->fromString(line);
 			add(temp);
 		}
+		cout << "THONG BAO: Da them thong tin cac cong to" << endl;
 		file.close();
 	}
 
@@ -158,15 +158,24 @@ void MeterService::remove()
 }
 void MeterService::display()
 {
-	cout << "\t\t\t\t DANH SACH CAC CONG TO DIEN HIEN HANH" << endl;
-	ElecMeter* meter = mHead;
-	cout << "|\t So cong to " << setw(18) << "|\t"<<" So dien truoc\t" << setw(18) << " | \t"<<"So dien sau \t" << setw(28)<< "|\t "<<"So dien tieu thu\t | " << endl;
-	cout << "_________________________________________________________________________________________________________________________________________________________" << endl;
-	while (meter != NULL)
+	if (!isEmpty())
 	{
-		cout << *meter;
-		meter = meter->next;
+		cout << "\t\t\t\t DANH SACH CAC CONG TO DIEN HIEN HANH" << endl;
+		ElecMeter* meter = mHead;
+		cout << "|\t So cong to " << setw(18) << "|" << " So dien truoc" << setw(8) << " | " << "So dien sau " << setw(8) << " | " << "So dien tieu thu\t  " << setw(8) << " | " << "Ma Khach Hang\t  |" << endl;
+		cout << "_________________________________________________________________________________________________________________________________________________________" << endl;
+		while (meter != NULL)
+		{
+			cout << *meter;
+			meter = meter->next;
+		}
+		cout << "_________________________________________________________________________________________________________________________________________________________" << endl;
 	}
+	else
+	{
+		cout << " THONG BAO : DANH SACH CONG TO DANG RONG" << endl;
+	}
+	
 }
 ElecMeter& MeterService::getMeter(int meterNumber)
 {

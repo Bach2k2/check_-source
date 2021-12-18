@@ -4,12 +4,10 @@ using namespace std;
 #include "ElecMeter.h"
 class MeterService
 {
-private:
+public:
 	ElecMeter* mHead; //
 	ElecMeter* mTail;
 	static int mAmount;
-	int monthManage;
-	int yearManage;
 public:
 	MeterService();
 	MeterService(const MeterService&);

@@ -75,6 +75,7 @@ double ElecBill::getPrice()
 void ElecBill::showBillOut()
 {
 	cout << "\n *****************************************************************************";
+	cout << "\n \t\t\t HOA DON TIEN DIEN\t\t\t";
 	cout << "\n*\tId hoa don : " << setw(5) << this->getBillId();
 	cout << "\n*" << "\tTen Khach Hang: " << setw(15) << this->customer.getCusName() << "\t\t\t\t " << "Ma Khach Hang: " << setw(10) << this->customer.getCusId();
 	cout << "\n*" << "\tSo dien thoai : " << setw(10) << this->customer.getPhoneNum();

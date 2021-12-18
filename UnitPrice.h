@@ -5,13 +5,13 @@
 using namespace std;
 class UnitPrice
 {
-protected:
+private:
 	int unitMeter;
 	int peak;
 	//double price;
-	double rank[6]; // Cac dinh muc gia
-	int unitRank[6]; // cac so dien tai tung muc
-	double priceRank[6]; // gia tien tai tung muc
+	double *rank; // Cac dinh muc gia
+	int *unitRank; // cac so dien tai tung muc
+	double *priceRank; // gia tien tai tung muc
 	double total; // Tong tien cac muc.
 public:
 	UnitPrice(int = 0);
@@ -21,10 +21,11 @@ public:
 //	void calculate();
 	double getPrice();
 	void showUnitPrice();
+	void showRank();
 	double getTotalPrice();
 	void setRank(UnitPrice &);
+	void typeRank();
 	void readData(string);
-	void writeData(string);
 	void calcPrice();
 };
 

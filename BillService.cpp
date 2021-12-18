@@ -6,81 +6,38 @@ BillService::BillService()
 {
 	this->pHead = NULL;
 	this->pTail = NULL;
+	this->monthManage = 0;
+	this->yearManage = 0;
 }
 BillService::~BillService()
 {
 }
-void BillService::readTwoId(string path)
+void BillService::setCusList(string path)
 {
-	meterList.readFile("meter.txt");
-	cusList.readDataInFile("custome.txt");
-	path = "CongTo_KhachHang.txt";
-	fstream file(path, ios::in);
-	if (file.is_open())
-	{
-		try
-		{
-			string line;
-			while (getline(file, line))
-			{
-				int meterId = 0;
-				string cusId = "";
-				string result[3];
-				string word;
-				int count = 0;
-				for (unsigned i = 0; i <= line.length(); i++)
-				{
-					if (line[i] == ',' || i == line.length())
-					{
-						result[count++] = word;
-						word = "";
-					}
-					else
-					{
-						word += line[i];
-					}
-				}
-				meterId = stof(result[0]);
-				cusId = result[1];
-				ElecMeter meter = meterList.getMeter(meterId);
-				Customer cus = cusList.getACus(cusId);
-				Date date1;
-				Date date2;
-				UnitPrice uPrice;
-				ElecBill* bill = new ElecBill(meter, cus, date1, date2, uPrice);
-				add(bill);
-			}
-		}
-		catch (const char* e)
-		{
-			cout << e;
-		}
-
-	}
-	else
-	{
-		cout << "Duong dan khong ton tai" << endl;
-	}
+	cusList.readDataInFile(path);
 }
+void BillService::setMeterList(string path)
+{
+	meterList.readFile(path);
+}
+
 void BillService::writeIntoFile(string path)
 {
 	ofstream oFile(path);
 	if (oFile.is_open())
 	{
+		oFile << "Id hoa don \t | So cong to\t | Ma Khach Hang\t| Ten Khach Hang\t | So dien thoai \t| Ngay bat dau \t| Ngay ket thuc\t | So dien truoc \t| So dien sau| \t";
+		oFile << " So dien tieu thu \t | Gia \t|"<<endl;
 		ElecBill* bill = pHead;
 		while (bill != NULL)
 		{
-			//Dinh dang 
-			oFile << bill->getBillId() << endl;
-			oFile << bill->meter << endl;
-			oFile << bill->customer << endl;
-			oFile << " from: " << bill->getBeginDate();
-			oFile << " to:  " << bill->getEndDate() << endl;
-			oFile << "Total Price: " << bill->getPrice();
-			oFile << endl;
+			oFile << bill->getBillId() << "\t " << bill->meter.getMeterNumber() << "\t " << bill->customer.getCusId()
+				<< " \t " << bill->customer.getCusName() << "\t" << bill->customer.getPhoneNum() << "\t " << bill->getBeginDate() << "\t "
+				<< bill->getEndDate() << "\t " << bill->meter.getUnit() << "\t" << bill->getPrice()<<endl;
 			bill = bill->next;
 
 		}
+		oFile.close();
 	}
 }
 void BillService::add(ElecBill* bill)
@@ -101,15 +58,24 @@ void BillService::display()
 {
 	calculatePrice();
 	ElecBill* bill = pHead;
-	cout << "------------------------------------------------------------------------------" << endl;
-	cout << "\t\t\tDANH SACH HOA DON THANG " << bill->getBeginDate().getMonth();
-	while (bill != NULL)
+	if (isEmpty())
 	{
-		bill->showBillOut();
-		Sleep(200);
-		bill = bill->next;
-		cout << "___________________________________________________________________________" << endl;
+		cout << "\n\t\tTHONG BAO: DANH SACH CAC HOA DON TRONG" << endl;
+		system("pause");
 	}
+	else
+	{
+		cout << "\n------------------------------------------------------------------------------" << endl;
+		cout << "\t\t\t DANH SACH HOA DON THANG " << this->monthManage << endl;
+		while (bill != NULL)
+		{
+			bill->showBillOut();
+			Sleep(200);
+			bill = bill->next;
+			cout << "___________________________________________________________________________" << endl;
+		}
+	}
+
 }
 void BillService::displayWithArea(string address)
 {
@@ -202,18 +168,60 @@ void BillService::remove()
 void BillService::search()
 {
 	string input;
-	cout << "Nhap id hoa don hoac so cong to" << endl;
+	cout << "Nhap id hoa don" << endl;
 	cin >> input;
 	ElecBill* bill = pHead;
-	while (bill != NULL)
+	if (contain(stof(input)))
 	{
-		if ((to_string(bill->getBillId()).rfind(input) <= 1) || (to_string(bill->meter.getMeterNumber()).rfind(input) <= 6))
+		while (bill != NULL)
 		{
-			bill->showBillOut();
+			if ((to_string(bill->getBillId()).rfind(input) <= 1) || (to_string(bill->meter.getMeterNumber()).rfind(input) <= 6))
+			{
+				bill->showBillOut();
+			}
+			bill = bill->next;
 		}
-		bill = bill->next;
 	}
-
+	else
+	{
+		cout << "THONG BAO: KHONG CO HOA DON DUOC TIM THAY" << endl;
+	}
+}
+void BillService::searchByMeter(int meterNum)
+{
+	ElecBill* bill = pHead;
+	if (meterList.contain(meterNum))
+	{
+		while (bill != NULL)
+		{
+			if ((to_string(bill->meter.getMeterNumber()).rfind(to_string(meterNum)) <= 6))
+			{
+				bill->showBillOut();
+			}
+			bill = bill->next;
+		}
+	}
+	else
+	{
+		cout << " THONG BAO: KHONG TIM THAY DUOC HOA DON NAO " << endl;
+	}
+}
+void BillService::searchByCustomer(string name)
+{
+	ElecBill* bill = pHead;
+	if (cusList.contain(name))
+		while (bill != NULL)
+		{
+			if ((bill->customer.getCusName()).rfind(name) <= 6)
+			{
+				bill->showBillOut();
+			}
+			bill = bill->next;
+		}
+	else
+	{
+		cout << " THONG BAO: KHONG TIM THAY DUOC HOA DON NAO " << endl;
+	}
 }
 bool BillService::isEmpty()
 {
@@ -243,17 +251,16 @@ void BillService::calculatePrice()
 	cout << "\n\t\t\t";
 	for (int i = 0; i < 10; i++)
 	{
-		cout << "|";
+		cout << "00";
 		Sleep(200);
 	}
+	cout << "\n";
 	ElecBill* bill = pHead;
 	while (bill != NULL)
 	{
 		bill->calcBill();
 		bill = bill->next;
 	}
-	cout << "\nDa tinh dc tien " << endl;
-
 }
 void BillService::setAllUP(UnitPrice& UP)
 {
@@ -385,28 +392,78 @@ void BillService::update()
 		cout << e;
 	}
 }
-void BillService::calcPricePerCus(string cusID)
+void BillService::createBill(MeterService& meterList, CustomerService& cusList, UnitPrice& uPrice)
 {
-	int count = 0;
-	double totalPrice = 0;
-	ElecBill* temp = pHead;
-	while (temp != NULL)
+	this->meterList = meterList;
+	this->cusList = cusList;
+	int month, year;
+	cout << "Nhap thang,nam quan ly:" << endl;
+	cin >> month >> year;
+	this->monthManage = month;
+	this->yearManage = year;
+	Date date1(1, month, year);
+	Date date2(1, month + 1, year);
+	for (ElecMeter* meter = this->meterList.mHead; meter != NULL; meter = meter->next)
 	{
-		if (temp->cusID.compare(cusID) == 0) count++;
-		temp = temp->next;
-	}
-	cout << " Khach hang thang nay co: " << count << " hoa don" << endl;
-	ElecBill* bill = pHead;
-	while (bill != NULL)
-	{
-		if (bill->cusID.compare(cusID) == 0) {
-			bill->showBillOut();
-			totalPrice += bill->getPrice();
-			cout << "--------------------------------------------------------" << endl;
+		try
+		{
+			string cusId = meter->getCusID();
+			Customer* cus = &cusList.getACus(cusId);
+			ElecBill* elecBill = new ElecBill(*meter, *cus, date1, date2, uPrice);
+			add(elecBill);
 		}
-		bill=bill->next;
+		catch (const char* e)
+		{
+			cout << "\n";
+		}
+		catch (...)
+		{
+			cout << "\n";
+		}
 	}
-	cout << "Tong tien khach hang  thanh toan trong thang nay: " << totalPrice;
+}
+void BillService::exByArea(string path,string address)
+{
+	fstream oFile(path);
+	if (oFile.is_open())
+	{
+		oFile << "Id hoa don \t | So cong to\t | Ma Khach Hang\t| Ten Khach Hang\t | So dien thoai \t| Ngay bat dau \t| Ngay ket thuc\t | So dien truoc \t| So dien sau| \t";
+		oFile << " So dien tieu thu \t | Gia \t|"<<endl;
+		ElecBill* bill = pHead;
+		while (bill != NULL)
+		{
+			Customer* cus = &bill->customer;
+			if (cus->getAddress().rfind(address) <= 100)
+			{
+				oFile << bill->getBillId() << "\t " << bill->meter.getMeterNumber() << "\t " << bill->customer.getCusId()
+					<< " \t " << bill->customer.getCusName() << "\t" << bill->customer.getPhoneNum() << "\t " << bill->getBeginDate() << "\t "
+					<< bill->getEndDate() << "\t " << bill->meter.getUnit() << "\t" << bill->getPrice()<<endl;
+			}
+			bill = bill->next;
+		}
+	}
+}
+void BillService::exABill(string path, string cusID)
+{
+	fstream oFile(path);
+	if(oFile.is_open())
+	{
+		oFile << "Id hoa don \t | So cong to\t | Ma Khach Hang\t| Ten Khach Hang\t | So dien thoai \t| Ngay bat dau \t| Ngay ket thuc\t | So dien truoc \t| So dien sau| \t";
+		oFile << " So dien tieu thu \t | Gia \t|"<<endl;
+		ElecBill* bill = pHead;
+		if (cusList.contain(cusID))
+			while (bill != NULL)
+			{
+				if ((bill->customer.getCusId()).rfind(cusID) <= 6)
+				{
+
+					oFile << bill->getBillId() << "\t " << bill->meter.getMeterNumber() << "\t " << bill->customer.getCusId()
+						<< " \t " << bill->customer.getCusName() << "\t" << bill->customer.getPhoneNum() << "\t " << bill->getBeginDate() << "\t "
+						<< bill->getEndDate() << "\t " << bill->meter.getUnit() << "\t" << bill->getPrice()<<endl;
+				}
+				bill = bill->next;
+			}
+	}
 }
 
 

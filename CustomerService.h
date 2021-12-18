@@ -9,6 +9,7 @@ public:
     static int cusAmount;
 public:
     CustomerService();
+    CustomerService(const CustomerService&);
     ~CustomerService();
     void add();
     void add(Customer* customer);//them sau

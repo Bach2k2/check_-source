@@ -9,10 +9,10 @@ private:
     int prevMeter;
     int nextMeter;
     int unit;
+    string cusId;
 public:
     ElecMeter* next;
-    ElecMeter();
-    ElecMeter(int, int, int);
+    ElecMeter(int=0, int=0, int=0,string="");
     ElecMeter(const ElecMeter&);
     ~ElecMeter();
     void fromString(string);
@@ -21,6 +21,8 @@ public:
     void setMeterNumber(int);
     void setPrevMeter(int);
     void setNextMeter(int);
+    void setCusId(string);
+    void typeAllData();
 //    void setMeterData();
     void setUnit(int);
     // get:
@@ -28,6 +30,7 @@ public:
     int getPrevMeter() { return prevMeter; }
     int getNextMeter() { return nextMeter; }
     int getUnit() { return unit; }
+    string getCusID() { return cusId; }
     friend ostream& operator<<(ostream&,const ElecMeter&);
     void writeFile(string);
 };
