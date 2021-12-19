@@ -3,6 +3,8 @@
 #include "Customer.h"
 #include "UnitPrice.h"
 #include "Date.h"
+#include <iomanip>
+using namespace std;
 class ElecBill
 {
 private:
@@ -19,13 +21,11 @@ public:
     Customer customer;// khach hang
     ElecBill* next;
     ElecBill();
-  //  ElecBill(int billId, int, int, int, string, string, string ,string,Date,Date,UnitPrice&);
     ElecBill(ElecMeter,Customer,Date,Date,UnitPrice&);
     ElecBill(const ElecBill&);
     ~ElecBill();
     void setBillId(int);
     int getBillId() { return this->billId; };
-   // void setAllData();
     void setBeginDate(Date&);
     void setEndDate(Date&);
     Date& getBeginDate();
@@ -37,7 +37,6 @@ public:
     void calcBill();
     void showUnitPrice();
     void showBillOut();
-    void fromStringId(string);
     void fromStringMonth(string);
     void setUnitPrice(UnitPrice&);
 };

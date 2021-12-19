@@ -1,9 +1,5 @@
 #include "Customer.h"
-#include <iostream>
-#include <string>
-#include<fstream>
-#include <iomanip>
-using namespace std;
+
 Customer::Customer(string cusId, string customerName, string address, string phoneNum) :
 	cusId(cusId), cusName(customerName), address(address), phoneNum(phoneNum)
 {
@@ -47,8 +43,7 @@ void Customer::setCusData()
 	cin.ignore();
 	do
 	{
-		
-		cout << "Nhap ten khach hang";
+		cout << "Nhap ten khach hang: ";
 		getline(cin, cusName);
 		if (cusName == "\n" || cusName == "")
 		{
@@ -79,7 +74,9 @@ void Customer::setCusData()
 		getline(cin, phoneNumber);
 		if (phoneNumber == ""||(phoneNumber.length()!=10&&phoneNumber.length()!=11)) {
 			cout << "So dien thoai qua ngan hoac qua dai" << endl;
-			check = false; }
+			check = false;
+			continue;
+		}
 		else
 		{
 			check = true;
@@ -96,10 +93,10 @@ void Customer::setCusData()
 }
 ostream& operator<<(ostream& o, const Customer& cus)
 {
-	o <<"| \t  " << cus.cusId<<"\t\t";
-	o << setw(30) <<cus.cusName<<"\t\t";
-	o << setw(50) << cus.address<<"\t";
-	o << setw(20)<< cus.phoneNum<<"\t|" << endl;
+	o <<"| " <<setw(6)<< cus.cusId<<setw(12)<<"|";
+	o << setw(28) <<cus.cusName<<setw(16)<<"|";
+	o << setw(45) << cus.address<<setw(2)<<"|";
+	o << setw(15)<< cus.phoneNum<<setw(4)<<"|" << endl;
 	return o;
 }
 void Customer::fromString(string str)

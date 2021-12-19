@@ -1,7 +1,5 @@
-#include <iostream>
-#include <iomanip>
-using namespace std;
 #include "UnitPrice.h"
+
 UnitPrice::UnitPrice(int unit)
 {
 	this->rank = new double[6];
@@ -50,9 +48,11 @@ void UnitPrice::typeRank()
 }
 void UnitPrice::showRank()
 {
+	Sleep(50);
 	cout << "\n\t\t Don gia theo tung muc: " << endl;
 	for (int i = 0; i < 6; i++)
 	{
+		Sleep(50);
 		cout << " Muc " << i + 1 << ": ";
 		cout << rank[i];
 		cout << "\n";
@@ -129,13 +129,13 @@ void UnitPrice::calcPrice()
 }
 void UnitPrice::showUnitPrice()
 {
-	cout << "\n*\t Muc\t\t So chi dien tai moi muc \t\t Gia tien tai moi muc \t\t";
+	cout << "\n*"<<setw(7)<< " Muc\t\t So chi dien tai moi muc \t\t Gia tien tai moi muc \t\t";
 	for (int i = 0; i < peak; i++)
 	{
-		cout << "\n*\t" << setw(5) << i + 1 << setw(20) << unitRank[i] << setw(25) << priceRank[i];
+		cout << "\n*\t" << setw(5) << i + 1 << setw(20) << unitRank[i] << setw(35) << priceRank[i];
 	}
 	cout << "\n*\t Muc cao nhat: " << this->peak;
-	cout << "\n*\t Tong tien:" <<setw(35)<< total << endl;
+	cout << "\n*\t Tong tien:" <<setw(48)<< total <<" nghin dong" << endl;
 }
 void UnitPrice::readData(string path)
 {
@@ -146,6 +146,10 @@ void UnitPrice::readData(string path)
 			file >> rank[i];
 		}
 		cout << "THONG BAO: Da them thong tin don gia: " << path << endl;
+	}
+	else
+	{
+		cerr << "THONG BAO: KHONG NHAN DUOC FILE CO TEN ``" << path<<"''" << endl;
 	}
 }
 double UnitPrice::getTotalPrice()

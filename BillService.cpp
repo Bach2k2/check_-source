@@ -1,6 +1,4 @@
 #include "BillService.h"
-#include<windows.h>
-using namespace std;
 int BillService::billAmount = 0;
 BillService::BillService()
 {
@@ -23,21 +21,25 @@ void BillService::setMeterList(string path)
 
 void BillService::writeIntoFile(string path)
 {
-	ofstream oFile(path);
+	ofstream oFile(path,ios::out);
 	if (oFile.is_open())
 	{
+		cout << "THONG BAO: Da mo duoc file " << endl;
 		oFile << "Id hoa don \t | So cong to\t | Ma Khach Hang\t| Ten Khach Hang\t | So dien thoai \t| Ngay bat dau \t| Ngay ket thuc\t | So dien truoc \t| So dien sau| \t";
 		oFile << " So dien tieu thu \t | Gia \t|"<<endl;
 		ElecBill* bill = pHead;
 		while (bill != NULL)
 		{
-			oFile << bill->getBillId() << "\t " << bill->meter.getMeterNumber() << "\t " << bill->customer.getCusId()
-				<< " \t " << bill->customer.getCusName() << "\t" << bill->customer.getPhoneNum() << "\t " << bill->getBeginDate() << "\t "
-				<< bill->getEndDate() << "\t " << bill->meter.getUnit() << "\t" << bill->getPrice()<<endl;
+			oFile << bill->getBillId() << "\t\t\t" << bill->meter.getMeterNumber() << "\t\t " << bill->customer.getCusId()
+				<< " \t\t " << bill->customer.getCusName() << "\t\t" << bill->customer.getPhoneNum() << "\t\t " << bill->getBeginDate() << "\t\t "
+				<< bill->getEndDate() << "\t\t " << bill->meter.getUnit() << "\t\t" << bill->getPrice()<<endl;
 			bill = bill->next;
-
 		}
 		oFile.close();
+	}
+	else
+	{
+		cout << "THONG BAO: Khong tim thay duong dan nay" << endl;
 	}
 }
 void BillService::add(ElecBill* bill)
@@ -65,10 +67,12 @@ void BillService::display()
 	}
 	else
 	{
+		int count = 1;
 		cout << "\n------------------------------------------------------------------------------" << endl;
-		cout << "\t\t\t DANH SACH HOA DON THANG " << this->monthManage << endl;
+		cout << "\t\t\t\t DANH SACH HOA DON THANG " << this->monthManage << endl;
 		while (bill != NULL)
 		{
+			cout << "\t Xuat hoa don thu " << count++ << " :" << endl;;
 			bill->showBillOut();
 			Sleep(200);
 			bill = bill->next;
@@ -96,10 +100,39 @@ void BillService::readNewMonth(string path)
 		cout << "Da doc duoc du lieu" << endl;
 		string line;
 		ElecBill* bill = pHead;
-		while (getline(file, line) && bill != NULL)
+		while (getline(file, line))
 		{
-			bill->fromStringMonth(line);
-			bill = bill->next;
+			string result[4];
+			string cell;
+			int count = 0;
+			for (int i = 0; i <= line.length(); i++)
+			{
+				if (line[i] == ',' || i == line.length())
+				{
+					result[count++] = cell;
+					cell = "";
+				}
+				else {
+					cell += line[i];
+				}
+			}
+			int myMeterNum= stof(result[0]);
+			for (ElecBill* bill = pHead; bill != NULL; bill = bill->next)
+			{
+				if (bill->meter.getMeterNumber() == myMeterNum)
+				{
+					int n_prevMeter = bill->meter.getNextMeter();
+
+					bill->meter.setNextMeter(stof(result[1]));// Gán giá trị chỉ số sau từ file;
+					bill->meter.setPrevMeter(n_prevMeter);
+					int unit = bill->meter.getNextMeter() - bill->meter.getPrevMeter();
+					bill->meter.setUnit(unit);
+					bill->getBeginDate().fromString(result[2]);
+					Date d1 = bill->getBeginDate();
+					Date d2 = d1 += 30;
+					bill->setEndDate(d2);
+				}
+			}
 		}
 	}
 	else
@@ -168,7 +201,7 @@ void BillService::remove()
 void BillService::search()
 {
 	string input;
-	cout << "Nhap id hoa don" << endl;
+	cout << "Nhap id hoa don: ";
 	cin >> input;
 	ElecBill* bill = pHead;
 	if (contain(stof(input)))
@@ -206,13 +239,13 @@ void BillService::searchByMeter(int meterNum)
 		cout << " THONG BAO: KHONG TIM THAY DUOC HOA DON NAO " << endl;
 	}
 }
-void BillService::searchByCustomer(string name)
+void BillService::searchByCusID(string cusID)
 {
 	ElecBill* bill = pHead;
-	if (cusList.contain(name))
+	if (cusList.contain(cusID))
 		while (bill != NULL)
 		{
-			if ((bill->customer.getCusName()).rfind(name) <= 6)
+			if ((bill->customer.getCusId()).rfind(cusID) <= 6)
 			{
 				bill->showBillOut();
 			}
@@ -271,6 +304,14 @@ void BillService::setAllUP(UnitPrice& UP)
 		bill = bill->next;
 	}
 	cout << " Da nhan du lieu tu don gia thanh cong" << endl;
+}
+void BillService::setMonth(int month)
+{
+	this->monthManage = month;
+}
+void BillService::setYear(int year)
+{
+	this->yearManage = year;
 }
 ElecBill& BillService::getABill(int billId)
 {
@@ -392,15 +433,34 @@ void BillService::update()
 		cout << e;
 	}
 }
-void BillService::createBill(MeterService& meterList, CustomerService& cusList, UnitPrice& uPrice)
+bool BillService::containMeter(int meterNumber)
+{
+	ElecBill* temp = pHead;
+	while (temp != NULL)
+	{
+		if (temp->meter.getMeterNumber() == meterNumber) {
+			return true;
+			break;
+		}
+		temp = temp->next;
+	}
+	return false;
+}
+void BillService::createBill(MeterService& meterList, CustomerService& cusList, UnitPrice& uPrice,bool check)
 {
 	this->meterList = meterList;
 	this->cusList = cusList;
-	int month, year;
-	cout << "Nhap thang,nam quan ly:" << endl;
-	cin >> month >> year;
-	this->monthManage = month;
-	this->yearManage = year;
+	int month = this->monthManage , year = this->yearManage;
+	if(check)
+	{ 
+		
+		cout << "\nNhap thang quan ly: ";
+		cin >> month;
+		cout << "\nNhap nam quan ly: ";
+		cin >> year;
+		this->monthManage = month;
+		this->yearManage = year;
+	}
 	Date date1(1, month, year);
 	Date date2(1, month + 1, year);
 	for (ElecMeter* meter = this->meterList.mHead; meter != NULL; meter = meter->next)
@@ -410,7 +470,10 @@ void BillService::createBill(MeterService& meterList, CustomerService& cusList, 
 			string cusId = meter->getCusID();
 			Customer* cus = &cusList.getACus(cusId);
 			ElecBill* elecBill = new ElecBill(*meter, *cus, date1, date2, uPrice);
-			add(elecBill);
+			if (!containMeter(meter->getMeterNumber()))
+			{
+				add(elecBill);
+			}
 		}
 		catch (const char* e)
 		{
@@ -424,9 +487,10 @@ void BillService::createBill(MeterService& meterList, CustomerService& cusList, 
 }
 void BillService::exByArea(string path,string address)
 {
-	fstream oFile(path);
+	ofstream oFile(path,ios::out);
 	if (oFile.is_open())
 	{
+		cout << "THONG BAO: Da mo duoc file " << endl;
 		oFile << "Id hoa don \t | So cong to\t | Ma Khach Hang\t| Ten Khach Hang\t | So dien thoai \t| Ngay bat dau \t| Ngay ket thuc\t | So dien truoc \t| So dien sau| \t";
 		oFile << " So dien tieu thu \t | Gia \t|"<<endl;
 		ElecBill* bill = pHead;
@@ -435,34 +499,48 @@ void BillService::exByArea(string path,string address)
 			Customer* cus = &bill->customer;
 			if (cus->getAddress().rfind(address) <= 100)
 			{
-				oFile << bill->getBillId() << "\t " << bill->meter.getMeterNumber() << "\t " << bill->customer.getCusId()
-					<< " \t " << bill->customer.getCusName() << "\t" << bill->customer.getPhoneNum() << "\t " << bill->getBeginDate() << "\t "
-					<< bill->getEndDate() << "\t " << bill->meter.getUnit() << "\t" << bill->getPrice()<<endl;
+				oFile << bill->getBillId() << "\t\t\t" << bill->meter.getMeterNumber() << "\t\t" << bill->customer.getCusId()
+					<< "\t\t" << bill->customer.getCusName() << "\t\t" << bill->customer.getPhoneNum() << "\t\t " << bill->getBeginDate() << "\t\t "
+					<< bill->getEndDate()<< "\t " << bill->meter.getPrevMeter() << "\t " << bill->meter.getNextMeter() << bill->meter.getUnit() << "\t\t" << bill->getPrice()<<endl;
 			}
 			bill = bill->next;
 		}
+		oFile.close();
+	}
+	else
+	{
+		cout << "THONG BAO: khong mo duoc file " << endl;
 	}
 }
 void BillService::exABill(string path, string cusID)
 {
-	fstream oFile(path);
+	ofstream oFile(path);
+	double total=0;
 	if(oFile.is_open())
 	{
+		cout << "THONG BAO: Da mo duoc file " << endl;
 		oFile << "Id hoa don \t | So cong to\t | Ma Khach Hang\t| Ten Khach Hang\t | So dien thoai \t| Ngay bat dau \t| Ngay ket thuc\t | So dien truoc \t| So dien sau| \t";
 		oFile << " So dien tieu thu \t | Gia \t|"<<endl;
 		ElecBill* bill = pHead;
 		if (cusList.contain(cusID))
 			while (bill != NULL)
 			{
-				if ((bill->customer.getCusId()).rfind(cusID) <= 6)
+				if ((bill->customer.getCusId()).rfind(cusID) <= 10)
 				{
 
 					oFile << bill->getBillId() << "\t " << bill->meter.getMeterNumber() << "\t " << bill->customer.getCusId()
 						<< " \t " << bill->customer.getCusName() << "\t" << bill->customer.getPhoneNum() << "\t " << bill->getBeginDate() << "\t "
 						<< bill->getEndDate() << "\t " << bill->meter.getUnit() << "\t" << bill->getPrice()<<endl;
+					total += bill->getPrice();
 				}
 				bill = bill->next;
 			}
+		oFile << "Tong tien can tra: " << total;
+		oFile.close();
+	}
+	else
+	{
+		cout << "THONG BAO: khong mo duoc file " << endl;
 	}
 }
 

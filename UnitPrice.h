@@ -2,6 +2,8 @@
 #include<iostream>
 #include <fstream>
 #include <string>
+#include <iomanip>
+#include <Windows.h>
 using namespace std;
 class UnitPrice
 {
@@ -26,6 +28,7 @@ public:
 	void setRank(UnitPrice &);
 	void typeRank();
 	void readData(string);
+	void writeData(string);
 	void calcPrice();
 };
 

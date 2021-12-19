@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <fstream>
+#include <string>
+#include <iomanip>
 using namespace std;
 class ElecMeter
 {
@@ -23,7 +25,7 @@ public:
     void setNextMeter(int);
     void setCusId(string);
     void typeAllData();
-//    void setMeterData();
+    void copyData(ElecMeter&);
     void setUnit(int);
     // get:
     int getMeterNumber() { return meterNumber; }
@@ -33,5 +35,7 @@ public:
     string getCusID() { return cusId; }
     friend ostream& operator<<(ostream&,const ElecMeter&);
     void writeFile(string);
+    bool compareWithMeter(ElecMeter&);
+    bool compareWithUnit(ElecMeter&);
 };
 

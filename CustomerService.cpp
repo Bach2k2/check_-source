@@ -1,10 +1,5 @@
 #include "CustomerService.h"
-#include <string>
-#include<fstream>
-#include <iostream>
-#include <string>
-#include<iomanip>
-using namespace std;
+
 CustomerService::CustomerService()
 {
 	this->cusHead = NULL;
@@ -122,11 +117,11 @@ void CustomerService::display()
 	cout << "______________________________________________________________________________________________________________________________________________" << endl;
 	if (isEmpty())
 	{
-		cout << "Danh sach rong" << endl;
+		cout << "\t\t\t\t\t\tTHONG BAO:  Danh sach rong" << endl;
 	}
 	else
 	{
-		cout <<"|\t Ma Khach Hang "<<setw(7) << "|\t"<<"  Ten khach hang\t"<<setw(25)<<" | \t\t\t Dia chi \t " << setw(18) << " | \t"<<" So dien thoai \t|" << endl;
+		cout <<"| Ma Khach Hang "<<setw(4) << "|"<<setw(15)<<"  Ten khach hang"<<setw(28)<<"|" << setw(30) << " Dia chi " << setw(18) << " | " << setw(10) << " So dien thoai " << setw(4) << " | " << endl;
 		cout << "______________________________________________________________________________________________________________________________________________" << endl;
 		Customer* temp = cusHead;
 		while (temp != NULL)
@@ -187,8 +182,36 @@ void CustomerService::readDataInFile(string path)
 			string line;
 			getline(file, line);
 			Customer* cus = new Customer();
-			cus->fromString(line);
-			add(cus);
+			string arr[10];
+			int count = 0;
+			string word;
+			for (unsigned i = 0; i <= line.length(); i++)
+			{
+				if (line[i] == ',' || i == line.length())
+				{
+
+					arr[count++] = word;
+					word = "";
+				}
+				else
+				{
+					word += line[i];
+				}
+			}
+			cus->setCusId(arr[0]);
+			cus->setCusName(arr[1]);
+			string address;
+			for (int i = 2; i < count - 1; i++)
+			{
+				 address+= arr[i] + ',';
+			}
+			address = address.substr(0, address.length() - 1);
+			cus->setAddress(address);
+			cus->setPhoneNum(arr[count - 1]);
+			if (!contain(cus->getCusId()))
+			{
+				add(cus);
+			}
 		}
 		cout << "\nDu lieu khach hang duoc them tu " << path <<"\n";
 		file.close();
@@ -200,39 +223,39 @@ void CustomerService::readDataInFile(string path)
 }
 void CustomerService::writeDataInFile(string path)
 {
-	ofstream file(path, ios::out);
-	file << "Ma khach hang \t| Ten khach hang \t| Tuoi \t So dien thoai\t Dia chi" << endl;;
-	if (file.is_open())
+	ofstream oFile(path, ios::out);
+	if (oFile.is_open())
 	{
+		cout << "THONG BAO: Da tim thay duong dan " << endl;
+		oFile << "Ma khach hang \t| Ten khach hang \t| Tuoi \t So dien thoai\t Dia chi" << endl;
 		Customer* cus = cusHead;
 		while (cus != NULL)
 		{
-			file << *cus;
+			oFile << *cus;
 			cus = cus->next;
 		}
+		oFile.close();
 	}
 	else
 	{
-		cout << "khong the mo file" << endl;
+		cout << "khong the mo File" << endl;
 	}
 }
 void CustomerService::update()
 {
 	Customer* temp = cusHead;
-	int check;
+	int option;
 	cout << "Ban co muon sua khong?" << endl;
-	do
-	{
-		cout << "Nhan 1 de cap nhat  - Nhan 0 de quay lai " << endl;
-		cin >> check;
-		if (check == 1)
+		cout << "Nhan 1 de cap nhat  - Nhan 0 de quay lai." << endl;
+		cin >> option;
+		if (option == 1)
 		{
 			cin.ignore(32767, '\n');
 			string cusId;
-			cout << "Nhap ma khach hang muon sua" << endl;
+			cout << "Nhap ma khach hang muon sua: " << endl;
 			cin >> cusId;
 			if (contain(cusId)) {
-				cout << "THONG BAO:  Da tim thay khach hang " << endl;
+				cout << "THONG BAO:  Da tim thay khach hang. " << endl;
 				Customer* temp = &getACus(cusId);
 				cout << "Khach hang muon sua: " << endl;
 				cout << *temp;
@@ -250,9 +273,13 @@ void CustomerService::update()
 						string n_cusId;
 						do
 						{
-							cout << "Nhap Ma Khach Hang moi: " << endl;
+							cin.ignore(32767, '\n');
+							cout << "Nhap ma khach hang moi: " << endl;
 							cin >> n_cusId;
-							if (n_cusId == "" || CustomerService::contain(n_cusId)) check = false;
+							if (n_cusId == "" || CustomerService::contain(n_cusId)) {
+								check = false;
+								cout << " Thong bao: Ma khach hang da trung" << endl;
+							}
 							else check = true;
 						} while (!check);
 						temp->setCusId(n_cusId);
@@ -265,7 +292,7 @@ void CustomerService::update()
 						{
 							cin.ignore(32767, '\n');
 							cout << "Nhap Ten Khach Hang moi: " << endl;
-							cin >> n_cusName;
+							getline(cin, n_cusName);
 							if (n_cusName == "")
 							{
 								cout << "Nhap lai" << endl;
@@ -301,7 +328,7 @@ void CustomerService::update()
 							getline(cin, n_phoneNum);
 							if (n_phoneNum == "") check = false;
 							else check = true;
-							for (int i = 0; i < n_phoneNum.size(); i++)
+							for (unsigned i = 0; i < n_phoneNum.size(); i++)
 							{
 								if (!isdigit(n_phoneNum[i])) {
 									cout << "so dien thoai khong the co chu" << endl;
@@ -324,7 +351,6 @@ void CustomerService::update()
 					{
 						cout << "Nhap sai lua chon mat roi" << endl;
 					}
-
 					}
 				} while (choice != 0);
 				cout << "Khach hang sau khi cap nhat: " << endl;
@@ -335,7 +361,10 @@ void CustomerService::update()
 				cout << "Khong tim thay khach hang can tim " << endl;
 			}
 		}
-	} while (check != 0);
+		else
+		{
+		cout << " Thong Bao: Da xac nhan thoat" << endl;
+ }
 }
 Customer& CustomerService::getACus(string cusId)
 {
@@ -354,6 +383,7 @@ Customer& CustomerService::getACus(string cusId)
 	else
 	{
 		throw "Khong the tra ve khach hang nay ";
+		return *cusHead;
 	}
 }
 void CustomerService::displayUpdateMenu()

@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <string>
+#include<fstream>
+#include <iomanip>
 using namespace std;
 class Customer{
 private:
@@ -33,3 +35,4 @@ public:
 	string getLastName();
 };
 
+	

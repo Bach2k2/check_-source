@@ -2,6 +2,8 @@
 #include "ElecBill.h"
 #include "MeterService.h"
 #include "CustomerService.h"
+#include<windows.h>
+using namespace std;
 class BillService
 {
 private:         //BillService
@@ -25,7 +27,7 @@ public:
     void display(); 
     void search();  
     void searchByMeter(int);
-    void searchByCustomer(string);
+    void searchByCusID(string);
  //   void readAllDataInFile(string path); // Đọc file
 
     bool contain(int);
@@ -34,9 +36,12 @@ public:
     void readNewMonth(string path);
     void displayWithArea(string); //In  theo khu vuc
     void setAllUP(UnitPrice&);
+    void setMonth(int);
+    void setYear(int);
     ElecBill& getABill(int);
-    void createBill(MeterService&,CustomerService&, UnitPrice&); // tao cac bills
+    void createBill(MeterService&,CustomerService&, UnitPrice&,bool); // tao cac bills
     void exByArea(string path,string address);// Ham xuat ra file theo khu vuc
     void exABill(string path,string cusID);// Ham xuat ra tung file
+    bool containMeter(int);
 };
 

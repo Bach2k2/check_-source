@@ -1,5 +1,9 @@
 #pragma once
+#include <iostream>
 #include <fstream>
+#include <string>
+#include <iomanip>
+using namespace std;
 using namespace std;
 #include "ElecMeter.h"
 class MeterService
@@ -22,9 +26,12 @@ public:
 	void readFile(string path); // Đọc file
 	void writeFile(string path); // in ra file
 	bool contain(int);
+	
 	// void calculatePrice();
 	// void MonthManger();
 	ElecMeter& getMeter(int meterNum);
+	void sortByMeter(bool);
+	void sortByUnit(bool);
 };
 
 

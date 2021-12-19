@@ -1,5 +1,5 @@
 #include "ElecBill.h"
-#include <iomanip>
+
 int ElecBill::increment = 1;
 ElecBill::ElecBill()
 {
@@ -75,9 +75,9 @@ double ElecBill::getPrice()
 void ElecBill::showBillOut()
 {
 	cout << "\n *****************************************************************************";
-	cout << "\n \t\t\t HOA DON TIEN DIEN\t\t\t";
+	cout << "\n* \t\t\t HOA DON TIEN DIEN\t\t\t";
 	cout << "\n*\tId hoa don : " << setw(5) << this->getBillId();
-	cout << "\n*" << "\tTen Khach Hang: " << setw(15) << this->customer.getCusName() << "\t\t\t\t " << "Ma Khach Hang: " << setw(10) << this->customer.getCusId();
+	cout << "\n*" << "\tTen Khach Hang: " << setw(15) << this->customer.getCusName() << setw(40) << "Ma Khach Hang: " << setw(10) << this->customer.getCusId()<<setw(5)<<"*";
 	cout << "\n*" << "\tSo dien thoai : " << setw(10) << this->customer.getPhoneNum();
 	cout << "\n*" << "\tDia chi : " << setw(30) << this->customer.getAddress();
 	cout << "\n*" << "\tSo cong to : " << setw(5) << this->meter.getMeterNumber();

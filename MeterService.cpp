@@ -1,15 +1,12 @@
 #include "MeterService.h"
-#include <string>
-#include <fstream>
-#include <iomanip>
-using namespace std;
+
 int MeterService::mAmount = 0;
 MeterService::MeterService()
 {
 	this->mHead = NULL;
 	this->mTail = NULL;
 }
-MeterService::MeterService(const MeterService & meterList) {
+MeterService::MeterService(const MeterService& meterList) {
 	this->mHead = meterList.mHead;
 	this->mTail = meterList.mTail;
 }
@@ -18,6 +15,7 @@ MeterService::~MeterService()
 	delete mHead;
 	delete mTail;
 }
+
 // Them moi 1 cong to vao danh sach
 void MeterService::add()
 {
@@ -34,7 +32,7 @@ void MeterService::add()
 			check = false;
 		}
 		else {
-			check = true;	
+			check = true;
 		}
 	} while (!check);
 	ElecMeter* myMeter = new ElecMeter();
@@ -76,7 +74,29 @@ void MeterService::readFile(string path)
 		while (getline(file, line))
 		{
 			ElecMeter* temp = new ElecMeter();
-			temp->fromString(line);
+			string result[10];
+			string cell;
+			int count = 0;
+			for (int i = 0; i <= line.length(); i++)
+			{
+				if (line[i] == ',' || i == line.length())
+				{
+					result[count++] = cell;
+					cell = "";
+				}
+				else
+				{
+					cell += line[i];
+				}
+			}
+			for (int i = 0; i < count; i++)
+			{
+				if (result[i] == "") throw "Khong nhan thong tin chinh xac tu file\n";
+			}
+			temp->setMeterNumber(stof(result[0]));
+			temp->setCusId(result[1]);
+			//temp->fromString(line);
+			if(!contain(temp->getMeterNumber()))
 			add(temp);
 		}
 		cout << "THONG BAO: Da them thong tin cac cong to" << endl;
@@ -120,7 +140,7 @@ void MeterService::remove()
 		{
 			int meterNumber;
 			cin.ignore();
-			cout << "Nhap so cong to cua hoa don can xoa: " << endl;
+			cout << "Nhap so cong to can xoa: " << endl;
 			cin >> meterNumber;
 			ElecMeter* after = mHead;
 			ElecMeter* before = after;
@@ -132,7 +152,7 @@ void MeterService::remove()
 			}
 			if (after == NULL)
 			{
-				cout << "Khong tim thay cong to nay" << endl;
+				cerr << "THONG BAO : Khong tim thay cong to nay" << endl;
 			}
 			else
 			{
@@ -160,22 +180,23 @@ void MeterService::display()
 {
 	if (!isEmpty())
 	{
-		cout << "\t\t\t\t DANH SACH CAC CONG TO DIEN HIEN HANH" << endl;
+		cout << "\t\t\t\t\t\t DANH SACH CAC CONG TO DIEN HIEN HANH" << endl;
+		cout << "____________________________________________________________________________________________________________________________________________________" << endl;
 		ElecMeter* meter = mHead;
-		cout << "|\t So cong to " << setw(18) << "|" << " So dien truoc" << setw(8) << " | " << "So dien sau " << setw(8) << " | " << "So dien tieu thu\t  " << setw(8) << " | " << "Ma Khach Hang\t  |" << endl;
-		cout << "_________________________________________________________________________________________________________________________________________________________" << endl;
+		cout << "|"<<setw(8)<<" So cong to " << setw(10) << " | " <<setw(10) <<" So dien truoc" << setw(6) << " | "<<setw(8) << "So dien sau " << setw(5) << " | " <<setw(10) <<"So dien tieu thu  " << setw(8) << " | " << "Ma Khach Hang"<<setw(5) <<" | " << endl;
+		cout << "____________________________________________________________________________________________________________________________________________________" << endl;
 		while (meter != NULL)
 		{
 			cout << *meter;
 			meter = meter->next;
 		}
-		cout << "_________________________________________________________________________________________________________________________________________________________" << endl;
+		cout << "____________________________________________________________________________________________________________________________________________________" << endl;
 	}
 	else
 	{
 		cout << " THONG BAO : DANH SACH CONG TO DANG RONG" << endl;
 	}
-	
+
 }
 ElecMeter& MeterService::getMeter(int meterNumber)
 {
@@ -195,12 +216,12 @@ ElecMeter& MeterService::getMeter(int meterNumber)
 	{
 		throw "Error! Khong tim duoc so cong to";
 	}
-	
+
 }
 void MeterService::search()
 {
 	string n_meterNum;
-	cout << "Nhap so cong to can tim kiem" << endl;
+	cout << "Nhap so cong to can tim kiem: ";
 	cin >> n_meterNum;
 	int count = 0;
 	ElecMeter* temp1 = mHead;
@@ -229,15 +250,16 @@ void MeterService::search()
 void MeterService::update()
 {
 	int meterNum;
-	cout << "\nNhap so cong to cua hoa don: ";
+	cout << "\nNhap so cong to dien can sua: ";
 	cin >> meterNum;
 	if (contain(meterNum))
 	{
 		ElecMeter* temp = &getMeter(meterNum);
+		cout << " THONG BAO : DA TIM THAY CONG TO" << endl;
 		cout << "----------------Cap nhat cong to-----------------------" << endl;
-		cout << "1. So cong to" << endl;
-		cout << "2. So chi dien dau" << endl;
-		cout << "3. So chi dien sau " << endl;
+		cout << "1. Thay doi so cong to" << endl;
+		cout << "2. Thay doi so chi dien dau va chi dien sau " << endl;
+		cout << "3. Thay doi ma khach hang " << endl;
 		cout << "----------------------------------------------------------" << endl;
 		int choice;
 		bool check = true;
@@ -275,17 +297,43 @@ void MeterService::update()
 		case 2:
 		{
 			int n_prevUnit;
-			cout << " Nhap moi so chi dien dau:" << endl;
-			cin >> n_prevUnit;
+			do {
+				cout << " Nhap moi so chi dien dau:" << endl;
+				cin >> n_prevUnit;
+				if (n_prevUnit < 0) {
+					cout << "Nhap lai. So phai lon hon 0" << endl;
+					check = false;
+				}
+				else
+				{
+					check = true;
+				}
+			} while (!check);
 			temp->setPrevMeter(n_prevUnit);
+			int n_nextUnit;
+			do {
+				cout << " Nhap moi so chi dien sau:" << endl;
+				cin >> n_nextUnit;
+				if (n_nextUnit < n_prevUnit) {
+					cout << "Nhap lai. So phai lon hon so truoc" << endl;
+					check = false;
+				}
+				else
+				{
+					check = true;
+				}
+			} while (!check);
+			temp->setNextMeter(n_nextUnit);
+			int n_unit = n_nextUnit - n_prevUnit;
+			temp->setUnit(n_unit);
 			break;
 		}
 		case 3:
 		{
-			int n_nextUnit;
-			cout << " Nhap moi so chi dien sau:" << endl;
-			cin >> n_nextUnit;
-			temp->setPrevMeter(n_nextUnit);
+			string n_cusId;
+			cout << " Nhap ma khach hang moi: " << endl;
+			cin >> n_cusId;
+			temp->setCusId(n_cusId);
 			break;
 		}
 		default:
@@ -293,7 +341,7 @@ void MeterService::update()
 			cout << " Lua chon khong phu hop" << endl;
 			break;
 		}
-			
+
 		}
 		cout << "Cong to sau khi cap nhat" << endl;
 		cout << *temp;
@@ -302,13 +350,13 @@ void MeterService::update()
 	{
 		cout << "Khong tim thay cong to nay" << endl;
 	}
-	
 }
 void MeterService::writeFile(string path)
 {
 	ofstream file(path, ios::out);
 	if (file.is_open())
 	{
+		cout << "THONG BAO: Da tim thay duong dan " << endl;
 		file << "| So cong to " << setw(18) << "| So dien truoc" << "\t\t" << "| So dien sau \t" << "" << "|\t So dien tieu thu\t\t|" << endl;
 		ElecMeter* meter = mHead;
 		while (meter != NULL)
@@ -316,9 +364,42 @@ void MeterService::writeFile(string path)
 			file << *meter;
 			meter = meter->next;
 		}
+		file.close();
 	}
 	else
 	{
 		cout << "Khong tim thay duong dan" << endl;
 	}
+}
+void MeterService::sortByMeter(bool check)
+{
+	for (ElecMeter* temp1 = mHead; temp1 != NULL; temp1 = temp1->next)
+	{
+		for (ElecMeter* temp2 = temp1->next; temp2 != NULL; temp2 = temp2->next)
+		{
+			if (temp1->compareWithMeter(*temp2) && check) {
+				ElecMeter* hold=new ElecMeter();
+				hold->copyData(*temp1);
+				temp1->copyData(*temp2);
+				temp2->copyData(*hold);
+			}
+		}
+	}
+	cout << "THONG BAO: DA SAP XEP THEO XONG" << endl;
+}
+void MeterService::sortByUnit(bool check)
+{
+	for (ElecMeter* temp1 = mHead; temp1 != NULL; temp1 = temp1->next)
+	{
+		for (ElecMeter* temp2 = temp1->next; temp2 != NULL; temp2 = temp2->next)
+		{
+			if (temp1->compareWithUnit(*temp2) && check) {
+				ElecMeter* hold=new ElecMeter();
+				hold->copyData(*temp1);
+				temp1->copyData(*temp2);
+				temp2->copyData(*hold);
+			}
+		}
+	}
+	cout << "THONG BAO: DA SAP XEP THEO XONG" << endl;
 }

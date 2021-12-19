@@ -1,6 +1,5 @@
 #include "Date.h"
-#include <string>
-using namespace std;
+
 int Date::days[] = { 31,28,31,30,31,30,31,31,30,31,30,31 };
 Date::Date(int D, int M, int Y)
 {
